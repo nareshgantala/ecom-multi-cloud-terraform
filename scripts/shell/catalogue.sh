@@ -1,5 +1,27 @@
 echo "copy catalogue service file"
-cp catalogue.service /etc/systemd/system/catalogue.service
+cat > /etc/systemd/system/catalogue.service << 'EOF'
+[Unit]
+Description=RoboShop Catalogue Service
+After=network.target
+
+[Service]
+Type=simple
+User=appuser
+WorkingDirectory=/app
+ExecStart=/app/catalogue
+Restart=on-failure
+RestartSec=10
+SyslogIdentifier=catalogue
+
+Environment=MYSQL_HOST=localhost
+Environment=MYSQL_USER=catalogue
+Environment=MYSQL_PASSWORD=RoboShop@1
+Environment=MYSQL_DATABASE=catalogue
+Environment=PORT=8002
+
+[Install]
+WantedBy=multi-user.target
+EOF
 
 echo "install golang"
 dnf install -y golang git mysql8.4

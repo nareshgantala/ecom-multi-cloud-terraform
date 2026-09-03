@@ -1,3 +1,28 @@
+
+cat > /etc/systemd/system/ratings.service << 'EOF'
+[Unit]
+Description=RoboShop Ratings Service
+After=network.target
+
+[Service]
+Type=simple
+User=appuser
+WorkingDirectory=/app
+ExecStart=gunicorn -b 0.0.0.0:8006 app:app
+Restart=on-failure
+RestartSec=10
+SyslogIdentifier=ratings
+
+Environment=MYSQL_HOST=localhost
+Environment=MYSQL_USER=ratings
+Environment=MYSQL_PASSWORD=RoboShop@1
+Environment=MYSQL_DATABASE=ratings
+Environment=PORT=8006
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
 echo "install dependencies"
 dnf install -y python3 python3-pip mysql8.4
 

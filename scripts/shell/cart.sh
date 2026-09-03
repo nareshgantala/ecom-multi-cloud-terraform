@@ -1,5 +1,9 @@
 echo "copy cart service file"
 cat > /etc/systemd/system/cart.service << 'EOF'
+[Unit]
+Description=RoboShop Cart Service
+After=network.target
+
 [Service]
 Type=simple
 User=appuser

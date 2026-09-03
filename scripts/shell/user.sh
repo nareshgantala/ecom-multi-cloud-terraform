@@ -1,5 +1,25 @@
 echo "copy user service file"
-cp user.service /etc/systemd/system/user.service
+cat > /etc/systemd/system/user.service << 'EOF'
+[Unit]
+Description=RoboShop User Service
+After=network.target
+
+[Service]
+Type=simple
+User=appuser
+WorkingDirectory=/app
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+RestartSec=10
+SyslogIdentifier=user
+
+Environment=MONGO_URL=mongodb://localhost:27017/users
+Environment=JWT_SECRET=roboshop-secret-key
+Environment=PORT=8001
+
+[Install]
+WantedBy=multi-user.target
+EOF
 
 
 echo "install nodejs"

@@ -1,5 +1,26 @@
 echo "copy shipping service file"
-cp shipping.service /etc/systemd/system/shipping.service
+cat > /etc/systemd/system/shipping.service << 'EOF'
+[Unit]
+Description=RoboShop Shipping Service
+After=network.target
+
+[Service]
+Type=simple
+User=appuser
+WorkingDirectory=/app
+ExecStart=java -jar /app/shipping.jar
+Restart=on-failure
+RestartSec=10
+SyslogIdentifier=shipping
+
+Environment=DB_HOST=localhost
+Environment=DB_USER=shipping
+Environment=DB_PASS=RoboShop@1
+Environment=PORT=8004
+
+[Install]
+WantedBy=multi-user.target
+EOF
 
 echo "install java, maven, mysql"
 dnf install -y java-21-openjdk java-21-openjdk-devel maven mysql8.4
