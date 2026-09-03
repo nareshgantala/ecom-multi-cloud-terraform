@@ -14,5 +14,4 @@ terraform {
 provider "google" {
   project = "project-b30e4ed9-1852-43c5-bfc"
   region  = "us-west1"
-  zone    = "us-west1-a"
 }

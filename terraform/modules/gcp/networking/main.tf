@@ -5,11 +5,22 @@ resource "google_compute_network" "vpc_network" {
 }
 
 
+resource "google_compute_subnetwork" "frontend_subnet" {
+  name          = "${var.name_prefix}-frontend-subnet"
+  ip_cidr_range = var.frontend_cidr
+  network       = google_compute_network.vpc_network.id
+}
+
+resource "google_compute_subnetwork" "app_subnet" {
+  name          = "${var.name_prefix}-app-subnet"
+  ip_cidr_range = var.app_cidr
+  network       = google_compute_network.vpc_network.id
+}
+
 resource "google_compute_subnetwork" "database_subnet" {
   name          = "${var.name_prefix}-database-subnet"
   ip_cidr_range = var.database_cidr
   network       = google_compute_network.vpc_network.id
-
 }
 
 resource "google_compute_router" "router" {
