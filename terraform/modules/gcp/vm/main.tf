@@ -16,7 +16,7 @@ resource "google_compute_instance_template" "frontend_template" {
     on_host_maintenance = "MIGRATE"
   }
 
-  metadata_startup_script = <<-EOF
+  metadata_startup_script = fileexists("${path.root}/../../scripts/shell/${var.component}.sh") ? file("${path.root}/../../scripts/shell/${var.component}.sh") : <<-EOF
     #!/bin/bash
     useradd -m -s /bin/bash devops
     echo 'devops:DevOps12345' | chpasswd
@@ -50,7 +50,7 @@ resource "google_compute_instance_template" "app_template" {
     on_host_maintenance = "MIGRATE"
   }
 
-  metadata_startup_script = <<-EOF
+  metadata_startup_script = fileexists("${path.root}/../../scripts/shell/${var.component}.sh") ? file("${path.root}/../../scripts/shell/${var.component}.sh") : <<-EOF
     #!/bin/bash
     useradd -m -s /bin/bash devops
     echo 'devops:DevOps12345' | chpasswd
@@ -79,7 +79,7 @@ resource "google_compute_instance_template" "database_template" {
   can_ip_forward = false
   tags           = ["database"]
 
-  metadata_startup_script = <<-EOF
+  metadata_startup_script = fileexists("${path.root}/../../scripts/shell/${var.component}.sh") ? file("${path.root}/../../scripts/shell/${var.component}.sh") : <<-EOF
     #!/bin/bash
     useradd -m -s /bin/bash devops
     echo 'devops:DevOps12345' | chpasswd

@@ -21,6 +21,6 @@ variable "database_component" {
     mysql    = "n4-standard-2"
     valky    = "n4-standard-2"
     rabbitmq = "n4-standard-2"
-    mongo    = "n4-standard-2"
+    mongodb  = "n4-standard-2"
   }
 }
