@@ -17,3 +17,7 @@ variable "app_services" {
 variable "ilb_ip" {
   type = string
 }
+
+variable "elb_ip" {
+  type = string
+}

@@ -57,6 +57,7 @@ module "dns" {
   database_subnet_name = module.networking.database_subnet_name
   app_services         = local.app_services
   ilb_ip               = module.ilb.ilb_ip
+  elb_ip               = module.frontend_elb.elb_ip
 }
 
 module "ilb" {

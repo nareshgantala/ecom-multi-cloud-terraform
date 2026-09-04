@@ -33,7 +33,7 @@ resource "google_compute_instance_template" "frontend_template" {
     source_image = data.google_compute_image.rhel.self_link
     auto_delete  = true
     boot         = true
-    disk_type    = "hyperdisk-balanced"
+    disk_type    = "pd-balanced"
   }
 
   network_interface {
@@ -71,7 +71,7 @@ resource "google_compute_instance_template" "app_template" {
     source_image = data.google_compute_image.rhel.self_link
     auto_delete  = true
     boot         = true
-    disk_type    = "hyperdisk-balanced"
+    disk_type    = "pd-balanced"
   }
 
   network_interface {
@@ -109,7 +109,7 @@ resource "google_compute_instance_template" "database_template" {
     source_image = data.google_compute_image.rhel.self_link
     auto_delete  = true
     boot         = true
-    disk_type    = "hyperdisk-balanced"
+    disk_type    = "pd-balanced"
   }
 
   network_interface {
