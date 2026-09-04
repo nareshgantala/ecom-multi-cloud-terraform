@@ -13,7 +13,7 @@ Restart=on-failure
 RestartSec=10
 SyslogIdentifier=catalogue
 
-Environment=MYSQL_HOST=localhost
+Environment=MYSQL_HOST=mysql.naresh-training.online
 Environment=MYSQL_USER=catalogue
 Environment=MYSQL_PASSWORD=RoboShop@1
 Environment=MYSQL_DATABASE=catalogue
@@ -37,13 +37,13 @@ cd /app
 unzip /tmp/catalogue.zip
 
 echo "download and load schema"
-mysql -h <MYSQL-SERVER-IP> -u root -pRoboShop@1 < db/schema.sql
+mysql -h mysql.naresh-training.online -u root -pRoboShop@1 < db/schema.sql
 
 echo "download and load users"
-mysql -h <MYSQL-SERVER-IP> -u root -pRoboShop@1 < db/app-user.sql
+mysql -h mysql.naresh-training.online -u root -pRoboShop@1 < db/app-user.sql
 
 echo "download and load master data"
-mysql -h <MYSQL-SERVER-IP> -u root -pRoboShop@1 catalogue < db/master-data.sql
+mysql -h mysql.naresh-training.online -u root -pRoboShop@1 catalogue < db/master-data.sql
 
 
 echo "create catalogue user"

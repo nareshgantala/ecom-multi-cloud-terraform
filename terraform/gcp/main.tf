@@ -45,3 +45,11 @@ module "security" {
   name_prefix = local.name_prefix
 }
 
+
+
+module "dns" {
+  source               = "../modules/gcp/dns"
+  name_prefix          = local.name_prefix
+  database_subnet_name = module.networking.database_subnet_name
+
+}

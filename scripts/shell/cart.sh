@@ -13,8 +13,8 @@ Restart=on-failure
 RestartSec=10
 SyslogIdentifier=cart
 
-Environment=REDIS_HOST=localhost
-Environment=CATALOGUE_URL=http://localhost:8002
+Environment=REDIS_HOST=valkey.naresh-training.online
+Environment=CATALOGUE_URL=http://catalogue.naresh-training.online:8002
 Environment=PORT=8003
 
 [Install]

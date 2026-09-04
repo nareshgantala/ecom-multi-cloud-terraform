@@ -13,7 +13,7 @@ Restart=on-failure
 RestartSec=10
 SyslogIdentifier=ratings
 
-Environment=MYSQL_HOST=localhost
+Environment=MYSQL_HOST=mysql.naresh-training.online
 Environment=MYSQL_USER=ratings
 Environment=MYSQL_PASSWORD=RoboShop@1
 Environment=MYSQL_DATABASE=ratings
@@ -32,8 +32,8 @@ mkdir -p /app && cd /app
 unzip /tmp/ratings.zip
 
 echo "create db user and schema"
-mysql -h <MYSQL-SERVER-IP> -u root -pRoboShop@1 < db/schema.sql
-mysql -h <MYSQL-SERVER-IP> -u root -pRoboShop@1 < db/app-user.sql
+mysql -h mysql.naresh-training.online -u root -pRoboShop@1 < db/schema.sql
+mysql -h mysql.naresh-training.online -u root -pRoboShop@1 < db/app-user.sql
 
 echo "create app user"
 useradd -r -s /bin/false appuser

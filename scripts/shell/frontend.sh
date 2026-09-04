@@ -35,49 +35,49 @@ http {
 
         location /api/catalogue/ {
             rewrite ^/api/catalogue/(.*)$ /$1 break;
-            proxy_pass http://localhost:8002;
+            proxy_pass http://catalogue.naresh-training.online:8002;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
         }
 
         location /api/user/ {
             rewrite ^/api/user/(.*)$ /$1 break;
-            proxy_pass http://localhost:8001;
+            proxy_pass http://user.naresh-training.online:8001;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
         }
 
         location /api/cart/ {
             rewrite ^/api/(.*)$ /$1 break;
-            proxy_pass http://localhost:8003;
+            proxy_pass http://cart.naresh-training.online:8003;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
         }
 
         location /api/shipping/ {
             rewrite ^/api/(.*)$ /$1 break;
-            proxy_pass http://localhost:8004;
+            proxy_pass http://shipping.naresh-training.online:8004;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
         }
 
         location /api/payment/ {
             rewrite ^/api/(.*)$ /$1 break;
-            proxy_pass http://localhost:8005;
+            proxy_pass http://payment.naresh-training.online:8005;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
         }
 
         location /api/ratings {
             rewrite ^/api/(.*)$ /$1 break;
-            proxy_pass http://localhost:8006;
+            proxy_pass http://ratings.naresh-training.online:8006;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
         }
 
         location /api/orders/ {
             rewrite ^/api/(.*)$ /$1 break;
-            proxy_pass http://localhost:8007;
+            proxy_pass http://orders.naresh-training.online:8007;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
         }

@@ -13,7 +13,7 @@ Restart=on-failure
 RestartSec=10
 SyslogIdentifier=user
 
-Environment=MONGO_URL=mongodb://localhost:27017/users
+Environment=MONGO_URL=mongodb://mongodb.naresh-training.online:27017/users
 Environment=JWT_SECRET=roboshop-secret-key
 Environment=PORT=8001
 

@@ -13,12 +13,12 @@ Restart=on-failure
 RestartSec=10
 SyslogIdentifier=orders
 
-Environment=MONGO_URL=mongodb://localhost:27017/orders
-Environment=AMQP_HOST=localhost
+Environment=MONGO_URL=mongodb://mongodb.naresh-training.online:27017/orders
+Environment=AMQP_HOST=rabbitmq.naresh-training.online
 Environment=AMQP_USER=roboshop
 Environment=AMQP_PASS=RoboShop@1
-Environment=SHIPPING_URL=http://localhost:8004
-Environment=NOTIFICATION_URL=http://localhost:8008
+Environment=SHIPPING_URL=http://shipping.naresh-training.online:8004
+Environment=NOTIFICATION_URL=http://notification.naresh-training.online:8008
 Environment=PORT=8007
 
 [Install]

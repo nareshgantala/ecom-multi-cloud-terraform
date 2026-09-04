@@ -13,7 +13,7 @@ Restart=on-failure
 RestartSec=10
 SyslogIdentifier=shipping
 
-Environment=DB_HOST=localhost
+Environment=DB_HOST=mysql.naresh-training.online
 Environment=DB_USER=shipping
 Environment=DB_PASS=RoboShop@1
 Environment=PORT=8004
@@ -33,8 +33,8 @@ cd /app
 unzip /tmp/shipping.zip
 
 echo "configure mysql"
-mysql -h <MYSQL-SERVER-IP> -u root -pRoboShop@1 < db/schema.sql
-mysql -h <MYSQL-SERVER-IP> -u root -pRoboShop@1 < db/app-user.sql
+mysql -h mysql.naresh-training.online -u root -pRoboShop@1 < db/schema.sql
+mysql -h mysql.naresh-training.online -u root -pRoboShop@1 < db/app-user.sql
 
 echo "create app user"
 useradd -r -s /bin/false appuser
