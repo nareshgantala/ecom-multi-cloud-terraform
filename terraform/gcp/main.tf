@@ -53,3 +53,9 @@ module "dns" {
   database_subnet_name = module.networking.database_subnet_name
 
 }
+
+module "ilb" {
+  source      = "../modules/gcp/ilb"
+  name_prefix = local.name_prefix
+  network_id  = module.networking.vpc_network_id
+}
