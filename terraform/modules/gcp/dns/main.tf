@@ -35,3 +35,4 @@ resource "google_dns_record_set" "app_records" {
   managed_zone = data.google_dns_managed_zone.public_zone.name
   rrdatas      = [var.ilb_ip]
 }
+

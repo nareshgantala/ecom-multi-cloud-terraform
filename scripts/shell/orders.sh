@@ -17,8 +17,8 @@ Environment=MONGO_URL=mongodb://mongodb.naresh-training.online:27017/orders
 Environment=AMQP_HOST=rabbitmq.naresh-training.online
 Environment=AMQP_USER=roboshop
 Environment=AMQP_PASS=RoboShop@1
-Environment=SHIPPING_URL=http://shipping.naresh-training.online:8004
-Environment=NOTIFICATION_URL=http://notification.naresh-training.online:8008
+Environment=SHIPPING_URL=http://shipping.naresh-training.online
+Environment=NOTIFICATION_URL=http://notification.naresh-training.online
 Environment=PORT=8007
 
 [Install]
