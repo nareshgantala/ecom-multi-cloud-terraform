@@ -23,7 +23,7 @@ EOF
 
 echo "install nodejs"
 curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -
-dnf install -y nodejs
+dnf install -y nodejs unzip
 
 echo "create app user"
 useradd -r -s /bin/false appuser

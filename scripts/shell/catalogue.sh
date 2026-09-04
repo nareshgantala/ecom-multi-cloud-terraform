@@ -24,7 +24,7 @@ WantedBy=multi-user.target
 EOF
 
 echo "install golang"
-dnf install -y golang git mysql8.4
+dnf install -y golang git mysql8.4 unzip
 
 echo "version"
 go version

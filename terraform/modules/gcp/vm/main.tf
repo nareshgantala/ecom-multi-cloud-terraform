@@ -137,6 +137,13 @@ resource "google_compute_region_instance_group_manager" "frontend_igm-sr" {
     name = "http"
     port = 80
   }
+  update_policy {
+    type                  = "PROACTIVE"
+    minimal_action        = "REPLACE"
+    max_surge_fixed       = 3
+    max_unavailable_fixed = 0
+  }
+
 
 
 }
@@ -160,6 +167,12 @@ resource "google_compute_region_instance_group_manager" "app_igm-sr" {
     name = "http"
     port = var.port
   }
+  update_policy {
+    type                  = "PROACTIVE"
+    minimal_action        = "REPLACE"
+    max_surge_fixed       = 3
+    max_unavailable_fixed = 0
+  }
 
 
 }
@@ -177,6 +190,12 @@ resource "google_compute_region_instance_group_manager" "database_igm-sr" {
   version {
     instance_template = google_compute_instance_template.database_template[count.index].self_link
     name              = "primary"
+  }
+  update_policy {
+    type                  = "PROACTIVE"
+    minimal_action        = "REPLACE"
+    max_surge_fixed       = 3
+    max_unavailable_fixed = 0
   }
 
 }

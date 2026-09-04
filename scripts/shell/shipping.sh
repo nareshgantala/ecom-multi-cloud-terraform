@@ -23,7 +23,7 @@ WantedBy=multi-user.target
 EOF
 
 echo "install java, maven, mysql"
-dnf install -y java-21-openjdk java-21-openjdk-devel maven mysql8.4
+dnf install -y unzip java-21-openjdk java-21-openjdk-devel maven mysql8.4
 java -version
 
 echo "download and unzip shipping code"

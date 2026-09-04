@@ -26,7 +26,7 @@ WantedBy=multi-user.target
 EOF
 
 echo "install java and maven"
-dnf install -y java-21-openjdk java-21-openjdk-devel maven
+dnf install -y unzip java-21-openjdk java-21-openjdk-devel maven
 
 echo "create app user"
 useradd -r -s /bin/false appuser

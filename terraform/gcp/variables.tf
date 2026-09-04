@@ -1,27 +1,27 @@
 variable "frontend_component" {
   default = {
-    frontend = "n4-standard-2"
+    frontend = "e2-small"
   }
 }
 
 variable "app_component" {
   default = {
-    cart      = "n4-standard-2"
-    catalogue = "n4-standard-2"
-    shipping  = "n4-standard-2"
-    payment   = "n4-standard-2"
-    user      = "n4-standard-2"
-    ratings   = "n4-standard-2"
-    "orders"  = "n4-standard-2"
+    cart      = "e2-small"
+    catalogue = "e2-small"
+    shipping  = "e2-small"
+    payment   = "e2-small"
+    user      = "e2-small"
+    ratings   = "e2-small"
+    "orders"  = "e2-small"
   }
 }
 
 variable "database_component" {
   default = {
-    mysql    = "n4-standard-2"
-    valky    = "n4-standard-2"
-    rabbitmq = "n4-standard-2"
-    mongodb  = "n4-standard-2"
+    mysql    = "e2-small"
+    valky    = "e2-small"
+    rabbitmq = "e2-small"
+    mongodb  = "e2-small"
   }
 }
 

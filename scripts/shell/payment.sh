@@ -25,7 +25,7 @@ WantedBy=multi-user.target
 EOF
 
 echo "install python and pip"
-dnf install -y python3 python3-pip
+dnf install -y python3 python3-pip unzip
 python3 --version
 
 echo "create app user"

@@ -24,7 +24,7 @@ WantedBy=multi-user.target
 EOF
 
 echo "install dependencies"
-dnf install -y python3 python3-pip mysql8.4
+dnf install -y python3 python3-pip mysql8.4 unzip
 
 echo "download and unzip ratings code"
 curl -L -o /tmp/ratings.zip https://raw.githubusercontent.com/raghudevopsb89/roboshop-microservices/main/artifacts/ratings.zip

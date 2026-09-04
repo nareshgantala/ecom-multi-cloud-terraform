@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "Install nginx"
-dnf install -y nginx
+dnf install -y nginx unzip
 systemctl enable nginx
 systemctl start nginx
 
