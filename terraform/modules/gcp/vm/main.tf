@@ -5,11 +5,15 @@ data "google_compute_image" "rhel" {
 
 resource "google_compute_instance_template" "frontend_template" {
   count          = var.component_type == "frontend" ? 1 : 0
-  name           = "${var.name_prefix}-${var.component}-template"
+  name_prefix    = "${var.name_prefix}-${var.component}-template"
   description    = "This template is used to create frontend server instances."
   machine_type   = var.machine_type
   can_ip_forward = false
   tags           = ["frontend"]
+
+  lifecycle {
+    create_before_destroy = true
+  }
 
   scheduling {
     automatic_restart   = true
@@ -29,6 +33,7 @@ resource "google_compute_instance_template" "frontend_template" {
     source_image = data.google_compute_image.rhel.self_link
     auto_delete  = true
     boot         = true
+    disk_type    = "hyperdisk-balanced"
   }
 
   network_interface {
@@ -39,11 +44,14 @@ resource "google_compute_instance_template" "frontend_template" {
 
 resource "google_compute_instance_template" "app_template" {
   count          = var.component_type == "app" ? 1 : 0
-  name           = "${var.name_prefix}-${var.component}-template"
+  name_prefix    = "${var.name_prefix}-${var.component}-template"
   description    = "This template is used to create app server instances."
   machine_type   = var.machine_type
   can_ip_forward = false
   tags           = ["app"]
+  lifecycle {
+    create_before_destroy = true
+  }
 
   scheduling {
     automatic_restart   = true
@@ -63,6 +71,7 @@ resource "google_compute_instance_template" "app_template" {
     source_image = data.google_compute_image.rhel.self_link
     auto_delete  = true
     boot         = true
+    disk_type    = "hyperdisk-balanced"
   }
 
   network_interface {
@@ -73,11 +82,14 @@ resource "google_compute_instance_template" "app_template" {
 
 resource "google_compute_instance_template" "database_template" {
   count          = var.component_type == "database" ? 1 : 0
-  name           = "${var.name_prefix}-${var.component}-template"
+  name_prefix    = "${var.name_prefix}-${var.component}-template"
   description    = "This template is used to create app server instances."
   machine_type   = var.machine_type
   can_ip_forward = false
   tags           = ["database"]
+  lifecycle {
+    create_before_destroy = true
+  }
 
   metadata_startup_script = fileexists("${path.root}/../../scripts/shell/${var.component}.sh") ? file("${path.root}/../../scripts/shell/${var.component}.sh") : <<-EOF
     #!/bin/bash
@@ -97,6 +109,7 @@ resource "google_compute_instance_template" "database_template" {
     source_image = data.google_compute_image.rhel.self_link
     auto_delete  = true
     boot         = true
+    disk_type    = "hyperdisk-balanced"
   }
 
   network_interface {

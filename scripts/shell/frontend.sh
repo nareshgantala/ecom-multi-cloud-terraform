@@ -105,3 +105,8 @@ npm run build
 echo "Deploy frontend"
 rm -rf /usr/share/nginx/html/*
 cp -r out/* /usr/share/nginx/html/
+
+
+echo "Configure SELinux and Restart Nginx"
+setsebool -P httpd_can_network_connect 1 || true
+systemctl restart nginx

@@ -39,8 +39,10 @@ resource "google_compute_region_backend_service" "app_backend" {
   timeout_sec           = 10
 
   backend {
-    group          = each.value.instance_group
-    balancing_mode = "UTILIZATION"
+    group           = each.value.instance_group
+    balancing_mode  = "UTILIZATION"
+    max_utilization = 0.8
+    capacity_scaler = 1.0
   }
 
   health_checks = [google_compute_region_health_check.app_hc[each.key].id]
