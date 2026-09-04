@@ -29,13 +29,13 @@ dnf install -y python3 python3-pip unzip
 python3 --version
 
 echo "create app user"
-useradd -r -s /bin/false appuser
+useradd -r -s /bin/false appuser || true
 mkdir -p /app
 
 echo "download payment code"
 curl -L -o /tmp/payment.zip https://raw.githubusercontent.com/raghudevopsb89/roboshop-microservices/main/artifacts/payment.zip
 cd /app
-unzip /tmp/payment.zip
+unzip -o /tmp/payment.zip
 
 echo "install python dependencies"
 pip3 install -r requirements.txt

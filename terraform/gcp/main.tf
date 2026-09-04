@@ -1,6 +1,7 @@
 module "networking" {
-  source      = "../modules/gcp/networking"
-  name_prefix = local.name_prefix
+  source          = "../modules/gcp/networking"
+  name_prefix     = local.name_prefix
+  database_region = var.database_region
 }
 
 module "frontend_vm" {
@@ -35,6 +36,7 @@ module "database_vm" {
   subnet_name    = module.networking.database_subnet_name
   component_type = "database"
   static_ip      = module.dns_db.database_ips[each.key]
+  region         = var.database_region
 }
 
 module "frontend_elb" {
@@ -65,7 +67,7 @@ module "dns_db" {
   source               = "../modules/gcp/dns_db"
   name_prefix          = local.name_prefix
   database_subnet_name = module.networking.database_subnet_name
-
+  region               = var.database_region
 }
 
 module "ilb" {

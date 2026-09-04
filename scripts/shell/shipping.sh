@@ -30,14 +30,20 @@ echo "download and unzip shipping code"
 curl -L -o /tmp/shipping.zip https://raw.githubusercontent.com/raghudevopsb89/roboshop-microservices/main/artifacts/shipping.zip
 mkdir -p /app
 cd /app
-unzip /tmp/shipping.zip
+unzip -o /tmp/shipping.zip
+
+echo "wait for mysql to be ready"
+until mysql -h mysql.naresh-training.online -u root -pRoboShop@1 -e "status" &>/dev/null; do
+  echo "Waiting for MySQL at mysql.naresh-training.online:3306..."
+  sleep 5
+done
 
 echo "configure mysql"
 mysql -h mysql.naresh-training.online -u root -pRoboShop@1 < db/schema.sql
 mysql -h mysql.naresh-training.online -u root -pRoboShop@1 < db/app-user.sql
 
 echo "create app user"
-useradd -r -s /bin/false appuser
+useradd -r -s /bin/false appuser || true
 
 echo "build and package shipping code"
 cd /app

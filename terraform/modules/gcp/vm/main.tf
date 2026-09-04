@@ -5,7 +5,7 @@ data "google_compute_image" "rhel" {
 
 resource "google_compute_instance_template" "frontend_template" {
   count          = var.component_type == "frontend" ? 1 : 0
-  name_prefix    = "${var.name_prefix}-${var.component}-template"
+  name_prefix    = "${var.name_prefix}-${var.component}-tmpl-"
   description    = "This template is used to create frontend server instances."
   machine_type   = var.machine_type
   can_ip_forward = false
@@ -44,7 +44,7 @@ resource "google_compute_instance_template" "frontend_template" {
 
 resource "google_compute_instance_template" "app_template" {
   count          = var.component_type == "app" ? 1 : 0
-  name_prefix    = "${var.name_prefix}-${var.component}-template"
+  name_prefix    = "${var.name_prefix}-${var.component}-tmpl-"
   description    = "This template is used to create app server instances."
   machine_type   = var.machine_type
   can_ip_forward = false
@@ -82,11 +82,12 @@ resource "google_compute_instance_template" "app_template" {
 
 resource "google_compute_instance_template" "database_template" {
   count          = var.component_type == "database" ? 1 : 0
-  name_prefix    = "${var.name_prefix}-${var.component}-template"
+  name_prefix    = "${var.name_prefix}-${var.component}-tmpl-"
   description    = "This template is used to create app server instances."
   machine_type   = var.machine_type
   can_ip_forward = false
   tags           = ["database"]
+  region         = var.region
   lifecycle {
     create_before_destroy = true
   }
@@ -124,9 +125,10 @@ resource "google_compute_region_instance_group_manager" "frontend_igm-sr" {
   name = "${var.name_prefix}-${var.component}-igm"
 
   base_instance_name = "${var.name_prefix}-${var.component}-igm-instance"
-  region             = "us-west1"
+  region             = var.region
 
-  target_size = 1
+  target_size                      = 1
+  distribution_policy_target_shape = "ANY"
 
   version {
     instance_template = google_compute_instance_template.frontend_template[count.index].self_link
@@ -138,10 +140,10 @@ resource "google_compute_region_instance_group_manager" "frontend_igm-sr" {
     port = 80
   }
   update_policy {
-    type                  = "PROACTIVE"
+    type                  = "OPPORTUNISTIC"
     minimal_action        = "REPLACE"
-    max_surge_fixed       = 3
-    max_unavailable_fixed = 0
+    max_surge_fixed       = 0
+    max_unavailable_fixed = 3
   }
 
 
@@ -154,9 +156,10 @@ resource "google_compute_region_instance_group_manager" "app_igm-sr" {
   name = "${var.name_prefix}-${var.component}-igm"
 
   base_instance_name = "${var.name_prefix}-${var.component}-igm-instance"
-  region             = "us-west1"
+  region             = var.region
 
-  target_size = 1
+  target_size                      = 1
+  distribution_policy_target_shape = "ANY"
 
   version {
     instance_template = google_compute_instance_template.app_template[count.index].self_link
@@ -168,10 +171,10 @@ resource "google_compute_region_instance_group_manager" "app_igm-sr" {
     port = var.port
   }
   update_policy {
-    type                  = "PROACTIVE"
+    type                  = "OPPORTUNISTIC"
     minimal_action        = "REPLACE"
-    max_surge_fixed       = 3
-    max_unavailable_fixed = 0
+    max_surge_fixed       = 0
+    max_unavailable_fixed = 3
   }
 
 
@@ -182,20 +185,21 @@ resource "google_compute_region_instance_group_manager" "database_igm-sr" {
 
   name = "${var.name_prefix}-${var.component}-igm"
 
-  base_instance_name = "${var.name_prefix}-${var.component}-igm-instance"
-  region             = "us-west1"
+  base_instance_name = contains(["rabbitmq", "valky"], var.component) ? "${var.name_prefix}-${var.component}-igm" : "${var.name_prefix}-${var.component}-igm-instance"
+  region             = var.region
 
-  target_size = 1
+  target_size                      = 1
+  distribution_policy_target_shape = "ANY"
 
   version {
     instance_template = google_compute_instance_template.database_template[count.index].self_link
     name              = "primary"
   }
   update_policy {
-    type                  = "PROACTIVE"
+    type                  = "OPPORTUNISTIC"
     minimal_action        = "REPLACE"
-    max_surge_fixed       = 3
-    max_unavailable_fixed = 0
+    max_surge_fixed       = 0
+    max_unavailable_fixed = 3
   }
 
 }

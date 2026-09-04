@@ -26,13 +26,13 @@ curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -
 dnf install -y nodejs unzip
 
 echo "create app user"
-useradd -r -s /bin/false appuser
+useradd -r -s /bin/false appuser || true
 mkdir -p /app
 
 echo "download and unzip cart code"
 curl -L -o /tmp/cart.zip https://raw.githubusercontent.com/raghudevopsb89/roboshop-microservices/main/artifacts/cart.zip
 cd /app
-unzip /tmp/cart.zip
+unzip -o /tmp/cart.zip
 
 echo "install npm dependencies"
 npm install --production

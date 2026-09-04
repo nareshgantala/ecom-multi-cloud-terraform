@@ -29,13 +29,13 @@ echo "install java and maven"
 dnf install -y unzip java-21-openjdk java-21-openjdk-devel maven
 
 echo "create app user"
-useradd -r -s /bin/false appuser
+useradd -r -s /bin/false appuser || true
 mkdir -p /app
 
 echo "download orders code"
 curl -L -o /tmp/orders.zip https://raw.githubusercontent.com/raghudevopsb89/roboshop-microservices/main/artifacts/orders.zip
 mkdir -p /app && cd /app
-unzip /tmp/orders.zip
+unzip -o /tmp/orders.zip
 
 echo "build orders code"
 mvn clean package -DskipTests

@@ -8,51 +8,68 @@ This document details the end-to-end architecture, networking flow, and step-by-
 
 ```mermaid
 graph TD
-    Client([Public Internet Client]) -->|HTTP Port 80| ExtALB[External Application Load Balancer\nGlobal Anycast IP: 34.160.195.31]
+    Client([Public Internet Client]) -->|HTTP Port 80| ExtALB["External Application Load Balancer\nGlobal Anycast IP: 34.160.195.31"]
 
-    subgraph GCP VPC: roboshop-project-demo-vpc
-        subgraph Frontend Subnet [10.1.0.0/24]
-            ExtALB -->|Port 80| FrontVM[Frontend Nginx Instance Group\nPrivate IP: 10.1.0.x]
-        end
+    subgraph VPC ["GCP VPC: roboshop-project-demo-vpc (Global Private Network)"]
 
-        subgraph Cloud DNS Zone: naresh-training.online
-            DNS1[*.naresh-training.online]
-            DNS2[*.db.naresh-training.online]
-        end
-
-        FrontVM -->|DNS Query: *.naresh-training.online| DNS1
-        DNS1 -.->|Resolves to ILB VIP| SharedILB
-
-        subgraph App Subnet [10.2.0.0/24]
-            SharedILB[Regional Shared Internal ALB\nVirtual IP: 10.2.0.x : Port 80]
-            
-            subgraph Proxy-Only Subnet [10.128.0.0/24]
-                Envoy[GCP Managed Envoy Proxies]
+        subgraph RegionWest ["Region: us-west1 (Oregon)"]
+            subgraph FrontendSubnet ["Frontend Subnet [10.1.0.0/24]"]
+                ExtALB -->|Port 80| FrontVM["Frontend Nginx MIG\nPrivate IP: 10.1.0.2 : Port 80"]
             end
-            SharedILB --- Envoy
 
-            Envoy -->|catalogue.naresh-training.online:80| CatMIG[Catalogue Service : 8002]
-            Envoy -->|user.naresh-training.online:80| UserMIG[User Service : 8001]
-            Envoy -->|cart.naresh-training.online:80| CartMIG[Cart Service : 8003]
-            Envoy -->|shipping.naresh-training.online:80| ShipMIG[Shipping Service : 8004]
-            Envoy -->|payment.naresh-training.online:80| PayMIG[Payment Service : 8005]
-            Envoy -->|ratings.naresh-training.online:80| RateMIG[Ratings Service : 8006]
-            Envoy -->|orders.naresh-training.online:80| OrderMIG[Orders Service : 8007]
+            subgraph ProxySubnet ["Proxy-Only Subnet [10.128.0.0/24]"]
+                Envoy["Regional Envoy Proxy Pool"]
+            end
+
+            subgraph AppSubnet ["App Subnet [10.2.0.0/24]"]
+                SharedILB["Regional Shared Internal ALB (ILB)\nVIP: 10.2.0.x : Port 80"]
+
+                SharedILB --- Envoy
+
+                Envoy -->|"catalogue.naresh-training.online:80"| CatMIG["Catalogue Service : 8002\nIP: 10.2.0.6"]
+                Envoy -->|"user.naresh-training.online:80"| UserMIG["User Service : 8001\nIP: 10.2.0.3"]
+                Envoy -->|"cart.naresh-training.online:80"| CartMIG["Cart Service : 8003\nIP: 10.2.0.4"]
+                Envoy -->|"shipping.naresh-training.online:80"| ShipMIG["Shipping Service : 8004\nIP: 10.2.0.9"]
+                Envoy -->|"payment.naresh-training.online:80"| PayMIG["Payment Service : 8005\nIP: 10.2.0.5"]
+                Envoy -->|"ratings.naresh-training.online:80"| RateMIG["Ratings Service : 8006\nIP: 10.2.0.7"]
+                Envoy -->|"orders.naresh-training.online:80"| OrderMIG["Orders Service : 8007\nIP: 10.2.0.8"]
+            end
+
+            NatWest["Cloud NAT & Router (us-west1)\nOutbound Internet Access"] -.-> FrontendSubnet
+            NatWest -.-> AppSubnet
         end
 
-        subgraph Database Subnet [10.3.0.0/24]
-            CatMIG -->|mysql.naresh-training.online:3306| MySQL[(MySQL Database\nStatic IP: 10.3.0.10)]
-            ShipMIG -->|mysql.naresh-training.online:3306| MySQL
-            RateMIG -->|mysql.naresh-training.online:3306| MySQL
-            
-            CartMIG -->|valky.naresh-training.online:6379| Valkey[(Valkey / Redis\nStatic IP: 10.3.0.11)]
-            
-            OrderMIG -->|rabbitmq.naresh-training.online:5672| RabbitMQ[(RabbitMQ Queue\nStatic IP: 10.3.0.12)]
-            PayMIG -->|rabbitmq.naresh-training.online:5672| RabbitMQ
-            
-            UserMIG -->|mongodb.naresh-training.online:27017| MongoDB[(MongoDB\nStatic IP: 10.3.0.13)]
-            OrderMIG -->|mongodb.naresh-training.online:27017| MongoDB
+        subgraph RegionCentral ["Region: us-central1 (Iowa)"]
+            subgraph DatabaseSubnet ["Database Subnet [10.4.0.0/24]"]
+                MySQL[("MySQL / MariaDB 10.11\nStatic IP: 10.4.0.10 : Port 3306")]
+                Valkey[("Valkey / Redis\nStatic IP: 10.4.0.11 : Port 6379")]
+                RabbitMQ[("RabbitMQ Message Broker\nStatic IP: 10.4.0.12 : Port 5672")]
+                MongoDB[("MongoDB 7.0\nStatic IP: 10.4.0.13 : Port 27017")]
+            end
+
+            NatCentral["Cloud NAT & Router (us-central1)\nOutbound Internet Access"] -.-> DatabaseSubnet
         end
+
+        %% Frontend to ILB
+        FrontVM -->|"API Calls via ILB VIP"| SharedILB
+
+        %% Cross-Region Private VPC Communication (us-west1 -> us-central1)
+        CatMIG -->|"mysql.naresh-training.online:3306"| MySQL
+        ShipMIG -->|"mysql.naresh-training.online:3306"| MySQL
+        RateMIG -->|"mysql.naresh-training.online:3306"| MySQL
+
+        CartMIG -->|"valky.naresh-training.online:6379"| Valkey
+
+        OrderMIG -->|"rabbitmq.naresh-training.online:5672"| RabbitMQ
+        PayMIG -->|"rabbitmq.naresh-training.online:5672"| RabbitMQ
+
+        UserMIG -->|"mongodb.naresh-training.online:27017"| MongoDB
+        OrderMIG -->|"mongodb.naresh-training.online:27017"| MongoDB
+    end
+
+    subgraph CloudDNS ["Cloud DNS Managed Zone: naresh-training.online"]
+        DNSApps["App Records (*.naresh-training.online -> ILB VIP 10.2.0.x)"]
+        DNSDBs["DB Records (*.naresh-training.online -> 10.4.0.10-13)"]
     end
 ```
 
@@ -61,40 +78,41 @@ graph TD
 ## Traffic Flow Summary
 
 1. **Client to Frontend**:
-   * Users hit `http://naresh-training.online` (or `http://34.160.195.31`).
-   * The **Global External HTTP Load Balancer** proxies traffic to the **Frontend Nginx MIG** on port 80.
+   * Users hit `http://naresh-training.online` or `http://34.160.195.31`.
+   * The **Global External HTTP Load Balancer** proxies internet traffic to the **Frontend Nginx MIG** in `us-west1` on port 80.
 
 2. **Frontend to Microservices**:
    * Frontend Nginx proxies API calls (e.g., `/api/catalogue/`) to `http://catalogue.naresh-training.online:80`.
    * Cloud DNS resolves `*.naresh-training.online` to the **Internal Application Load Balancer (ILB)** private VIP in `10.2.0.0/24`.
-   * The ILB uses **Host-based routing** to forward requests to the appropriate application MIG on its respective internal port (`8001` - `8007`).
+   * The ILB uses **Host-based routing** via Envoy to forward requests to the appropriate application MIG on its respective internal port (`8001` - `8007`).
 
-3. **Microservices to Databases**:
-   * App services query Cloud DNS for database endpoints (`mysql`, `valky`, `rabbitmq`, `mongodb`).
-   * Cloud DNS maps to the reserved static internal IPs (`10.3.0.10` - `10.3.0.13`).
-   * VPC Firewall permits TCP traffic directly from `app` VMs to `database` VMs.
+3. **Microservices to Databases (Cross-Region Private VPC)**:
+   * App services in `us-west1` query Cloud DNS for database endpoints (`mysql`, `valky`, `rabbitmq`, `mongodb`).
+   * Cloud DNS maps to the reserved static internal IPs (`10.4.0.10` - `10.4.0.13`) located in the `us-central1` database subnet (`10.4.0.0/24`).
+   * Traffic flows seamlessly across Google's private global backbone between `us-west1` and `us-central1` without traversing the public internet.
+   * VPC Firewall permits TCP traffic directly from `app` VMs to `database` VMs on required ports (`3306`, `6379`, `5672`, `27017`).
 
 ---
 
 ## Service Port & IP Reference Table
 
-| Tier | Component | Machine Type | Subnet CIDR | IP / VIP | Port |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **External** | External ALB | Global Managed | N/A | `34.160.195.31` | `80` |
-| **Frontend** | `frontend` | `n4-standard-2` | `10.1.0.0/24` | Dynamic DHCP | `80` (Nginx) |
-| **Internal LB** | Shared App ILB | Regional Managed | `10.2.0.0/24` | Reserved ILB IP | `80` |
-| **ILB Proxy** | Envoy Proxy Pool | N/A | `10.128.0.0/24` | Regional Proxy | Ephemeral |
-| **App** | `user` | `n4-standard-2` | `10.2.0.0/24` | Dynamic MIG IP | `8001` |
-| **App** | `catalogue` | `n4-standard-2` | `10.2.0.0/24` | Dynamic MIG IP | `8002` |
-| **App** | `cart` | `n4-standard-2` | `10.2.0.0/24` | Dynamic MIG IP | `8003` |
-| **App** | `shipping` | `n4-standard-2` | `10.2.0.0/24` | Dynamic MIG IP | `8004` |
-| **App** | `payment` | `n4-standard-2` | `10.2.0.0/24` | Dynamic MIG IP | `8005` |
-| **App** | `ratings` | `n4-standard-2` | `10.2.0.0/24` | Dynamic MIG IP | `8006` |
-| **App** | `orders` | `n4-standard-2` | `10.2.0.0/24` | Dynamic MIG IP | `8007` |
-| **Database** | `mysql` | `n4-standard-2` | `10.3.0.0/24` | `10.3.0.10` | `3306` |
-| **Database** | `valky` (Redis) | `n4-standard-2` | `10.3.0.0/24` | `10.3.0.11` | `6379` |
-| **Database** | `rabbitmq` | `n4-standard-2` | `10.3.0.0/24` | `10.3.0.12` | `5672` |
-| **Database** | `mongodb` | `n4-standard-2` | `10.3.0.0/24` | `10.3.0.13` | `27017` |
+| Tier | Component | Machine Type | Region | Subnet CIDR | IP / VIP | Port |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **External** | External ALB | Global Managed | Global | N/A | `34.160.195.31` | `80` |
+| **Frontend** | `frontend` | `e2-small` | `us-west1` | `10.1.0.0/24` | `10.1.0.2` (DHCP) | `80` (Nginx) |
+| **Internal LB** | Shared App ILB | Regional Managed | `us-west1` | `10.2.0.0/24` | Reserved ILB IP | `80` |
+| **ILB Proxy** | Envoy Proxy Pool | Regional Managed | `us-west1` | `10.128.0.0/24` | Regional Proxy Subnet | Ephemeral |
+| **App** | `user` | `e2-small` | `us-west1` | `10.2.0.0/24` | `10.2.0.3` | `8001` |
+| **App** | `cart` | `e2-small` | `us-west1` | `10.2.0.0/24` | `10.2.0.4` | `8003` |
+| **App** | `payment` | `e2-small` | `us-west1` | `10.2.0.0/24` | `10.2.0.5` | `8005` |
+| **App** | `catalogue` | `e2-small` | `us-west1` | `10.2.0.0/24` | `10.2.0.6` | `8002` |
+| **App** | `ratings` | `e2-small` | `us-west1` | `10.2.0.0/24` | `10.2.0.7` | `8006` |
+| **App** | `orders` | `e2-small` | `us-west1` | `10.2.0.0/24` | `10.2.0.8` | `8007` |
+| **App** | `shipping` | `e2-small` | `us-west1` | `10.2.0.0/24` | `10.2.0.9` | `8004` |
+| **Database** | `mysql` (MariaDB 10.11) | `e2-small` | `us-central1` | `10.4.0.0/24` | `10.4.0.10` (Static) | `3306` |
+| **Database** | `valky` (Redis) | `e2-small` | `us-central1` | `10.4.0.0/24` | `10.4.0.11` (Static) | `6379` |
+| **Database** | `rabbitmq` | `e2-small` | `us-central1` | `10.4.0.0/24` | `10.4.0.12` (Static) | `5672` |
+| **Database** | `mongodb` (Mongo 7.0) | `e2-small` | `us-central1` | `10.4.0.0/24` | `10.4.0.13` (Static) | `27017` |
 
 ---
 
@@ -200,8 +218,10 @@ gcloud compute instances get-serial-port-output <INSTANCE_NAME> --zone=<ZONE>
 
 | Issue | Root Cause | Solution |
 | :--- | :--- | :--- |
-| **`unconditional drop overload`** | 0 instances in the backend group. | Check MIG instances; ensure disk type matches machine type (`hyperdisk-balanced` for `n4`). |
+| **`Quota 'INSTANCES' exceeded (Limit: 8.0)`** | Default quota limit of 8 instances in region `us-west1`. | Split stateful databases to secondary region (`us-central1`), connected privately via VPC. |
+| **`maxSurge and maxUnavailable cannot both be 0`** | Regional MIG update policy validation failure. | Set `max_surge_fixed = 0` and `max_unavailable_fixed = 3` with `update_policy { type = "OPPORTUNISTIC" }`. |
+| **`Subnetwork proxy-subnet is already being used`** | Forwarding rule not fully torn down when subnet destroyed. | Add `depends_on = [google_compute_subnetwork.proxy_subnet]` to the ILB forwarding rule. |
+| **`unconditional drop overload`** | 0 instances in the backend group. | Check MIG instances; ensure disk type matches machine type (`pd-balanced` for `e2`). |
 | **`503 no healthy upstream`** | Health check failed on port 80. | Check `journalctl -u google-startup-scripts.service`; ensure Nginx started and served `index.html`. |
 | **`None of the backends have a valid capacity`** | `balancing_mode = "UTILIZATION"` missing metrics. | Add `max_utilization = 0.8` and `capacity_scaler = 1.0` in the backend block. |
-| **`Instance Template in use by IGM`** | Destroy-then-create ordering conflict. | Use `name_prefix = "*-template-"` and `lifecycle { create_before_destroy = true }`. |
-| **`Invalid value for max_surge_fixed`** | Regional MIGs require surge >= number of zones. | Set `max_surge_fixed = 3` (or 0) for regional instance groups across 3 zones. |
+| **`Instance Template in use by IGM`** | Destroy-then-create ordering conflict. | Use `name_prefix = "*-tmpl-"` and `lifecycle { create_before_destroy = true }`. |

@@ -34,7 +34,13 @@ echo "Download catalogue Code"
 curl -L -o /tmp/catalogue.zip https://raw.githubusercontent.com/raghudevopsb89/roboshop-microservices/main/artifacts/catalogue.zip
 mkdir -p /app
 cd /app
-unzip /tmp/catalogue.zip
+unzip -o /tmp/catalogue.zip
+
+echo "wait for mysql to be ready"
+until mysql -h mysql.naresh-training.online -u root -pRoboShop@1 -e "status" &>/dev/null; do
+  echo "Waiting for MySQL at mysql.naresh-training.online:3306..."
+  sleep 5
+done
 
 echo "download and load schema"
 mysql -h mysql.naresh-training.online -u root -pRoboShop@1 < db/schema.sql
@@ -47,9 +53,12 @@ mysql -h mysql.naresh-training.online -u root -pRoboShop@1 catalogue < db/master
 
 
 echo "create catalogue user"
-useradd -r -s /bin/false appuser
+useradd -r -s /bin/false appuser || true
 
 echo "download dependencies"
+export HOME=/root
+export GOPATH=/root/go
+export GOMODCACHE=/root/go/pkg/mod
 cd /app
 go mod tidy
 
@@ -59,6 +68,7 @@ CGO_ENABLED=0 go build -o /app/catalogue .
 echo "change ownership"
 chown -R appuser:appuser /app
 chmod o-rwx /app -R
+chcon -t bin_t /app/catalogue || true
 
 echo "start service"
 systemctl daemon-reload

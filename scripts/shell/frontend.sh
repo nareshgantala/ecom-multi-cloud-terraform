@@ -94,7 +94,7 @@ dnf install -y nodejs
 echo "Download frontend Code"
 curl -L -o /tmp/frontend.zip https://raw.githubusercontent.com/raghudevopsb89/roboshop-microservices/main/artifacts/frontend.zip
 mkdir -p /tmp/frontend && cd /tmp/frontend
-unzip /tmp/frontend.zip
+unzip -o /tmp/frontend.zip
 
 echo "Install Node Dependencies"
 npm install

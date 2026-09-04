@@ -1,9 +1,9 @@
 locals {
   database_ips = {
-    mysql    = "10.3.0.10"
-    valky    = "10.3.0.11"
-    rabbitmq = "10.3.0.12"
-    mongodb  = "10.3.0.13"
+    mysql    = "10.4.0.10"
+    valky    = "10.4.0.11"
+    rabbitmq = "10.4.0.12"
+    mongodb  = "10.4.0.13"
   }
 }
 
@@ -14,6 +14,7 @@ resource "google_compute_address" "db_ip" {
   subnetwork   = var.database_subnet_name
   address_type = "INTERNAL"
   address      = each.value
+  region       = var.region
 }
 
 

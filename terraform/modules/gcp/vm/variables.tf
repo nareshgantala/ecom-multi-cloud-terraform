@@ -29,3 +29,8 @@ variable "static_ip" {
   type    = string
   default = null
 }
+
+variable "region" {
+  type    = string
+  default = "us-west1"
+}

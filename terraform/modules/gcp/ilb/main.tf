@@ -87,4 +87,5 @@ resource "google_compute_forwarding_rule" "ilb_forwarding_rule" {
   port_range            = "80"
   target                = google_compute_region_target_http_proxy.ilb_proxy.id
   ip_address            = google_compute_address.ilb_ip.address
+  depends_on            = [google_compute_subnetwork.proxy_subnet]
 }

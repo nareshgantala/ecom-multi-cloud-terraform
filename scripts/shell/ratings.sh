@@ -29,14 +29,20 @@ dnf install -y python3 python3-pip mysql8.4 unzip
 echo "download and unzip ratings code"
 curl -L -o /tmp/ratings.zip https://raw.githubusercontent.com/raghudevopsb89/roboshop-microservices/main/artifacts/ratings.zip
 mkdir -p /app && cd /app
-unzip /tmp/ratings.zip
+unzip -o /tmp/ratings.zip
+
+echo "wait for mysql to be ready"
+until mysql -h mysql.naresh-training.online -u root -pRoboShop@1 -e "status" &>/dev/null; do
+  echo "Waiting for MySQL at mysql.naresh-training.online:3306..."
+  sleep 5
+done
 
 echo "create db user and schema"
 mysql -h mysql.naresh-training.online -u root -pRoboShop@1 < db/schema.sql
 mysql -h mysql.naresh-training.online -u root -pRoboShop@1 < db/app-user.sql
 
 echo "create app user"
-useradd -r -s /bin/false appuser
+useradd -r -s /bin/false appuser || true
 mkdir -p /app
 
 echo "install python dependencies"

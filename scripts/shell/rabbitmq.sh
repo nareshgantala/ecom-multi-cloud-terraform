@@ -22,13 +22,17 @@ dnf install -y rabbitmq-server
 
 
 echo "enabling and starting rabbitmq"
-systemctl enable rabbitmq-server
-systemctl start rabbitmq-server
+systemctl enable --now rabbitmq-server
+
+echo "waiting for rabbitmq to be ready"
+until rabbitmqctl ping &>/dev/null; do
+  sleep 2
+done
 
 echo "setting up rabbitmq users and permissions"
-rabbitmqctl add_user roboshop RoboShop@1
-rabbitmqctl set_user_tags roboshop administrator
-rabbitmqctl set_permissions -p / roboshop ".*" ".*" ".*"
+rabbitmqctl add_user roboshop RoboShop@1 || true
+rabbitmqctl set_user_tags roboshop administrator || true
+rabbitmqctl set_permissions -p / roboshop ".*" ".*" ".*" || true
 
 echo "restart rabbitmq service"
 systemctl restart rabbitmq-server

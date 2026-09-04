@@ -38,3 +38,8 @@ variable "app_ports" {
     orders    = 8007
   }
 }
+
+variable "database_region" {
+  type    = string
+  default = "us-central1"
+}

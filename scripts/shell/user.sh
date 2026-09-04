@@ -31,13 +31,13 @@ node --version
 npm --version
 
 echo "create user appuser"
-useradd -r -s /bin/false appuser
+useradd -r -s /bin/false appuser || true
 mkdir -p /app
 
 echo "download and unzip user code"
 curl -L -o /tmp/user.zip https://raw.githubusercontent.com/raghudevopsb89/roboshop-microservices/main/artifacts/user.zip
 cd /app
-unzip /tmp/user.zip
+unzip -o /tmp/user.zip
 
 echo "install dependencies"
 npm install --production
