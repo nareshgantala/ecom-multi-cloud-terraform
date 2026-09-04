@@ -18,3 +18,14 @@ variable "subnet_name" {
 variable "component_type" {
   type = string
 }
+
+
+variable "port" {
+  type    = number
+  default = 80
+}
+
+variable "static_ip" {
+  type    = string
+  default = null
+}

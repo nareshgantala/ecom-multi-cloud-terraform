@@ -17,11 +17,17 @@ resource "google_compute_firewall" "allow_frontend_to_app" {
   network     = var.network_id
   description = "Allows traffic from frontend to app"
   direction   = "INGRESS"
-  source_tags = ["frontend", "app"]
+  # Allow traffic from Proxy Subnet and GCP Health Checks
+  source_ranges = [
+    "10.128.0.0/24",  # Proxy-only subnet
+    "130.211.0.0/22", # Google LB health checks
+    "35.191.0.0/16"   # Google LB health checks
+  ]
   target_tags = ["app"]
+
   allow {
     protocol = "tcp"
-    ports    = ["8080"]
+    ports    = [for port in var.app_ports : tostring(port)]
   }
 }
 

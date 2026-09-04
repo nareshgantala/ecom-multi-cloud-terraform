@@ -24,3 +24,17 @@ variable "database_component" {
     mongodb  = "n4-standard-2"
   }
 }
+
+
+variable "app_ports" {
+  type = map(number)
+  default = {
+    user      = 8001
+    catalogue = 8002
+    cart      = 8003
+    shipping  = 8004
+    payment   = 8005
+    ratings   = 8006
+    orders    = 8007
+  }
+}

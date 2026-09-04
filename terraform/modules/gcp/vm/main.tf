@@ -101,6 +101,7 @@ resource "google_compute_instance_template" "database_template" {
 
   network_interface {
     subnetwork = var.subnet_name
+    network_ip = var.static_ip
   }
 
 }
@@ -141,6 +142,12 @@ resource "google_compute_region_instance_group_manager" "app_igm-sr" {
     instance_template = google_compute_instance_template.app_template[count.index].self_link
     name              = "primary"
   }
+
+  named_port {
+    name = "http"
+    port = var.port
+  }
+
 
 }
 

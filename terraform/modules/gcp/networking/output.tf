@@ -9,6 +9,16 @@ output "database_subnet_name" {
   value = google_compute_subnetwork.database_subnet.name
 }
 
+output "app_subnet_id" {
+  value = google_compute_subnetwork.app_subnet.id
+}
+
+output "database_subnet_id" {
+  value = google_compute_subnetwork.database_subnet.id
+}
+
+
 output "vpc_network_id" {
   value = google_compute_network.vpc_network.id
 }
+

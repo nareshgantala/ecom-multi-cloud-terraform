@@ -21,6 +21,7 @@ module "app_vm" {
   name_prefix    = local.name_prefix
   subnet_name    = module.networking.app_subnet_name
   component_type = "app"
+  port           = var.app_ports[each.key]
 }
 
 module "database_vm" {
@@ -31,6 +32,7 @@ module "database_vm" {
   name_prefix    = local.name_prefix
   subnet_name    = module.networking.database_subnet_name
   component_type = "database"
+  static_ip      = module.dns.database_ips[each.key]
 }
 
 module "frontend_elb" {
@@ -43,6 +45,8 @@ module "security" {
   source      = "../modules/gcp/security"
   network_id  = module.networking.vpc_network_id
   name_prefix = local.name_prefix
+  app_ports   = var.app_ports
+
 }
 
 
@@ -51,11 +55,14 @@ module "dns" {
   source               = "../modules/gcp/dns"
   name_prefix          = local.name_prefix
   database_subnet_name = module.networking.database_subnet_name
-
+  app_services         = local.app_services
+  ilb_ip               = module.ilb.ilb_ip
 }
 
 module "ilb" {
-  source      = "../modules/gcp/ilb"
-  name_prefix = local.name_prefix
-  network_id  = module.networking.vpc_network_id
+  source        = "../modules/gcp/ilb"
+  name_prefix   = local.name_prefix
+  network_id    = module.networking.vpc_network_id
+  app_subnet_id = module.networking.app_subnet_id
+  app_services  = local.app_services
 }
